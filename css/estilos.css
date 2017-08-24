@@ -109,3 +109,9 @@ div[class^='col']{
   height: 96px;
 
 }
+
+ .imagen{
+        width: px;
+        height: 90px;               
+        margin: 2px;
+    }
