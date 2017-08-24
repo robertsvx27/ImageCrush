@@ -1,11 +1,14 @@
-;
-(function () {
-    var indColor = 0;
-    var indEstado = 0;
-    var colores = new Array();
-    var estados = new Array();
-    colores = ['white', 'yellow'];
-    estados = ['Reiniciar', 'Iniciar'];
+var puntos = 0,
+    movimientos = 0,
+    tiempoJuego = 5, // segundos
+    tiempoRestante,
+    tiempo,
+    indColor = 0,
+    indEstado = 0,
+    colores = ['white', 'yellow'];  
+
+$(function () {
+   
 
     var cambiarTitulo = function () {
         setInterval(function () {
@@ -13,10 +16,80 @@
                 indColor = 0;
             $('.main-titulo').css('color', colores[indColor]);
             indColor++;
-
         }, 1000);
     }
 
+    $(".btn-reinicio").click(iniciar)
+    
+    function iniciar(){
+       $('.btn-reinicio').text('Reiniciar');
+        if (indEstado == 0) {
+            indEstado = 1;
+            iniciarTiempo();
+        } else {
+            reiniciar();
+        }
+    }
+    
+    function reiniciar(){
+        
+        puntos = 0;
+        movimientos = 0;
+        tiempoRestante = tiempoJuego;
+        actualizarTiempo();   
+        clearTimeout(tiempo);        
+        $('.panel-tablero').slideToggle("slow",function(){
+            iniciarTiempo();}); 
+           $('.time').show();
+          $('.finalizacion').hide();            
+           $('.panel-score').css({ 'width':'25%'});  
+            $('.panel-score').resize({
+              animate:true
+          });  
+    }
+    
+    function iniciarTiempo(){      
+        tiempoRestante = tiempoJuego;
+        tiempo = setTimeout(contadorTiempo,1000);
+    }
+   
+    function contadorTiempo(){
+        tiempoRestante -=1;
+        console.log(tiempoRestante);
+        actualizarTiempo();
+        if(tiempoRestante==0){
+            return finalizacion();
+        }
+        tiempo = setTimeout(contadorTiempo,1000);
+    }
+    
+    function actualizarTiempo(){
+        $('#timer').html(formatoTiempo(tiempoRestante));
+    }
+    
+    function actualizarPuntos(){
+        $('#score-text').html(puntos);
+    }
+    
+    function actualizarMovimientos(){
+        $('#movimientos-text').html(movimientos);
+    }
+    
+    function finalizacion() {
+        $('.panel-tablero').slideToggle("slow",function(){
+           $('.time').hide();
+          $('.finalizacion').show();            
+           $('.panel-score').css({ 'width':'100%'});  
+            $('.panel-score').resize({
+              animate:true
+          });  
+        });                       
+    }
+   
+    function cargarTablero(){
+        
+    }
+    
     var temporizador = function () {
         var $timer,
                 tiempo = 1000;
@@ -42,21 +115,13 @@
                     temporizador.Timer = $.timer(actualizarTiempo, incrementador, true);
                 };
         this.restaurarTiempo = function () {
-
+             temporizador.Timer = $.timer()
         };
         $(init);
 
     }
-
-    $(".btn-reinicio").click(function () {
-        $(this).text(estados[indEstado]);
-        if (indEstado == 1) {
-            indEstado = 0;
-        } else {
-            temporizador();
-            indEstado = 1;
-        }
-    })
+        
+  
 
     $(function () {
         cambiarTitulo();
@@ -72,8 +137,14 @@
     }
     function formatTime(time) {
         var min = parseInt(time / 6000),
-                sec = parseInt(time / 100) - (min * 60),
-                hundredths = pad(time - (sec * 100) - (min * 6000), 2);
-        return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2) + ":" + hundredths;
+                sec = parseInt(time / 100) - (min * 60);             
+        return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2);
+    }
+    
+     function formatoTiempo(time) {
+        var min = parseInt(time / 60),
+                sec = time - (min * 60) ;
+        console.log ((min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2));
+        return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2);
     }
 }());

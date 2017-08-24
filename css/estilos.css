@@ -54,6 +54,11 @@ body{
   background: rgba(232, 115, 6, 0.5);
 }
 
+.finalizacion{
+  text-align: center;
+  height: 10%;
+  display: none;
+}
 
 .buttons{
   height: 10%;
