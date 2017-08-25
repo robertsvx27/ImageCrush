@@ -34,6 +34,7 @@ body{
   height: 700px;
   display: flex;
   flex-flow: row wrap;
+  align-content: center;
 }
 
 .panel-score{
@@ -101,7 +102,6 @@ div[class^='col']{
   flex-flow: column wrap;
   justify-content: flex-end;
   align-items: center;
-
 }
 
 .elemento{
@@ -109,9 +109,10 @@ div[class^='col']{
   height: 96px;
 
 }
-
- .imagen{
-        width: px;
-        height: 90px;               
-        margin: 2px;
-    }
+ .imagen {
+        width: 100%;
+        height: 14.2%;               
+        margin: 0;
+        background-repeat: no-repeat;     
+        background-size: 70%;
+ }
