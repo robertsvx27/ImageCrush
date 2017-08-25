@@ -97,10 +97,10 @@ $(function () {
             for (var j =0; j< dimension;j++){
                 var imagenPonemos = Math.floor((Math.random() * cantidadImagenes));
                 matriz[x][j] = arrayImagenes[imagenPonemos];
-                //$('#img'+x+j).html("<img src='"+ matriz[x][j] + "' alt=''/>");
-                console.log(x +' ' + j + ' ' + matriz[x][j]);
-                $('#img'+x+j).css('background-image','url("' + matriz[x][j] +'")');
-                //$('#img'+x+j).css('background-size','100%,100%');
+                $('#img'+x+j).html("<img src='"+ matriz[x][j] + "' alt=''/>");
+//                console.log(x +' ' + j + ' ' + matriz[x][j]);
+//                $('#img'+x+j).css('background-image','url("' + matriz[x][j] +'")');
+//                //$('#img'+x+j).css('background-size','100%,100%');
             }                            
         }
     }

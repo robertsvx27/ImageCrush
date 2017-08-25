@@ -111,8 +111,10 @@ div[class^='col']{
 }
  .imagen {
         width: 100%;
-        height: 14.2%;               
-        margin: 0;
-        background-repeat: no-repeat;     
-        background-size: 70%;
+        height: 14.25%;                               
+        text-align: center;
+ }
+ 
+ .imagen img {
+    width: 70%;   
  }
