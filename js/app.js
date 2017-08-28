@@ -9,7 +9,7 @@ var puntos = 0,
 dimension = 7;
 var arrayImagenes = ['image/1.png', 'image/2.png', 'image/3.png', 'image/4.png'];
 var cantidadImagenes = arrayImagenes.length;
-var matriz = new Array([],[],[],[],[],[],[]);
+var matriz = new Array([], [], [], [], [], [], []);
 
 $(function () {
 
@@ -92,16 +92,22 @@ $(function () {
         });
     }
 
-    function cargarTablero() {        
-        for (var x = 0; x < dimension; x++) {                 
-            for (var j =0; j< dimension;j++){
+    function cargarTablero() {
+        for (var x = 0; x < dimension; x++) {
+            for (var j = 0; j < dimension; j++) {
                 var imagenPonemos = Math.floor((Math.random() * cantidadImagenes));
                 matriz[x][j] = arrayImagenes[imagenPonemos];
-                $('#img'+x+j).html("<img src='"+ matriz[x][j] + "' alt=''/>");
-//                console.log(x +' ' + j + ' ' + matriz[x][j]);
-//                $('#img'+x+j).css('background-image','url("' + matriz[x][j] +'")');
-//                //$('#img'+x+j).css('background-size','100%,100%');
-            }                            
+                $('#img' + x + j).html("<img src='" + matriz[x][j] + "' alt=''/>");
+                $('#img' + x + j).draggable(
+                        {
+                            containment: '.panel-tablero',
+                            cursor: 'move',
+                            snap: '.panel-tablero',
+                            distance: '1',
+                            stack: '.panel-tablero',
+                            revert: true
+                        });
+            }
         }
     }
 
