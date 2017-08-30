@@ -5,14 +5,25 @@ var puntos = 0,
         tiempo,
         indColor = 0,
         indEstado = 0,
-        colores = ['white', 'yellow'];
+        figValidas = 0;
+        colores = ['white', 'yellow'];        
 dimension = 7;
 var arrayImagenes = ['image/1.png', 'image/2.png', 'image/3.png', 'image/4.png'];
 var cantidadImagenes = arrayImagenes.length;
-var matriz = new Array([], [], [], [], [], [], []);
+var matriz = [];
 
 $(function () {
 
+    function juego(f, c, obj, src)
+    {
+        return {
+            f: f,
+            c: c,
+            fuente: src,
+            enCombo: false,
+            o: obj
+        }
+    }
 
     var cambiarTitulo = function () {
         setInterval(function () {
@@ -93,20 +104,95 @@ $(function () {
     }
 
     function cargarTablero() {
-        for (var x = 0; x < dimension; x++) {
-            for (var j = 0; j < dimension; j++) {
+        for (var f = 0; f < dimension; f++) {
+            matriz[f] = [];
+            for (var c = 0; c < dimension; c++) {
                 var imagenPonemos = Math.floor((Math.random() * cantidadImagenes));
-                matriz[x][j] = arrayImagenes[imagenPonemos];
-                $('#img' + x + j).html("<img src='" + matriz[x][j] + "' alt=''/>");
-                $('#img' + x + j).draggable(
+                matriz[f][c] = new juego(f, c, null, arrayImagenes[imagenPonemos]);
+
+                var celda = $('#img' + f + c).html("<img src='" + matriz[f][c].fuente + "' alt=''/>");
+                celda.draggable(
                         {
                             containment: '.panel-tablero',
                             cursor: 'move',
-                            snap: '.panel-tablero',
-                            distance: '1',
+                            //snap: '.panel-tablero',                           
                             stack: '.panel-tablero',
-                            revert: true
+                            //revert: true,
+                            drag: handleDragStop
                         });
+                celda.droppable(
+                        {
+                            drop: handleDropEvent
+                        });
+                matriz[f][c].o = cell;
+            }
+        }
+    }
+
+    function handleDragStop(event, ui) {
+        console.log("Moving jewel: " + event.target.id);
+        //var offsetXPos = parseInt(ui.offset.left);
+        //var offsetYPos = parseInt(ui.offset.top);
+        //console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");
+        event.dataTransfer.setData("text/plain",event.target.id);
+    }
+
+    function handleDropEvent(event, ui) {
+        //var draggable = ui.draggable;
+        //lert('The square with ID "' + draggable.attr('id') + '" was dropped onto me!');
+        event.preventDefault();
+        console.log("drag over " + event.target);
+    }
+
+    function seleccionaryEliminar() {
+        for (var f = 0; f < dimension; f++) {
+            var prevCelda = null;
+            var figLongitud = 0;
+            var figInicio = null;
+            var figFin = null;
+
+            for (var c = 0; c < dimension; c++) {
+                // first cell of combo!
+                if (prevCelda == null)
+                {
+                    //console.log("FirstCell: " + r + "," + c);
+                    prevCelda = matriz[f][c].src;
+                    figInicio = c;
+                    figLongitud = 1;
+                    figFin = null;
+                    continue;
+                } else {
+                    var curCelda = matriz[f][c].fuente;
+                    if (!(prevCelda == curCelda)) {
+                        prevCelda = matriz[f][c].fuente;
+                        figInicio = c;
+                        figFin = null;
+                        figLongitud = 1;
+                        continue;
+                    } else {
+                        figLongitud += 1;
+                        if (figLongitud == 3)
+                        {
+                            figValidas += 1;
+                            figFin = c;
+                            console.log("Combo from " + figInicio + " to " + figFin + "!");
+                            for (var ci = figInicio; ci <= figFin; ci++)
+                            {
+
+                                matriz[f][ci].esCombo = true;
+                                matriz[f][ci].fuente = null;
+                                //grid[r][ci].o.attr("src","");
+
+                            }
+                            prevCelda = null;
+                            figInicio = null;
+                            figFin = null;
+                            figLongitud = 1;
+                            continue;
+                        }
+
+                    }
+                }
             }
         }
     }
@@ -156,11 +242,6 @@ $(function () {
             str = '0' + str;
         }
         return str;
-    }
-    function formatTime(time) {
-        var min = parseInt(time / 6000),
-                sec = parseInt(time / 100) - (min * 60);
-        return (min > 0 ? pad(min, 2) : "00") + ":" + pad(sec, 2);
     }
 
     function formatoTiempo(time) {
