@@ -6,11 +6,12 @@ var puntos = 0,
         indColor = 0,
         indEstado = 0,
         figValidas = 0;
-        colores = ['white', 'yellow'];        
+colores = ['white', 'yellow'];
 dimension = 7;
 var arrayImagenes = ['image/1.png', 'image/2.png', 'image/3.png', 'image/4.png'];
 var cantidadImagenes = arrayImagenes.length;
 var matriz = [];
+var divMovimiento = null;
 
 $(function () {
 
@@ -115,33 +116,66 @@ $(function () {
                         {
                             containment: '.panel-tablero',
                             cursor: 'move',
-                            //snap: '.panel-tablero',                           
+                            zIndex: 100,
+                            opacity: 0.85,
+                            snap: '.panel-tablero',
                             stack: '.panel-tablero',
                             //revert: true,
-                            drag: handleDragStop
+                            start: handleDragStart,
+                            drag: handleDragStop,
+                            stop: function (event, ui) {
+                                
+                            }
                         });
                 celda.droppable(
                         {
                             drop: handleDropEvent
                         });
-                matriz[f][c].o = cell;
+                matriz[f][c].o = celda;
             }
         }
     }
 
     function handleDragStop(event, ui) {
         console.log("Moving jewel: " + event.target.id);
+        console.log("Posicion: " + event.target);
         //var offsetXPos = parseInt(ui.offset.left);
         //var offsetYPos = parseInt(ui.offset.top);
-        //console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");
-        event.dataTransfer.setData("text/plain",event.target.id);
+        //console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");        
+        //event.originalEvent.dataTransfer.setData("text/plain", event.target.id);
+    }
+    
+    function handleDragStart(event, ui) {       
+        console.log("Moving jewel: " + event.target.id);
+        console.log("Moving jewel: " + event.target.css);
+        console.log("Posicion: " + event.target);
+        var offsetXPos = parseInt(ui.offset.left);
+        var offsetYPos = parseInt(ui.offset.top);
+        console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");                
+        divMovimiento = event.target;
     }
 
     function handleDropEvent(event, ui) {
-        //var draggable = ui.draggable;
-        //lert('The square with ID "' + draggable.attr('id') + '" was dropped onto me!');
-        event.preventDefault();
-        console.log("drag over " + event.target);
+        var draggable = ui.draggable; // a donde llega el div a mover
+        console.log('Posicion movida "' + draggable.attr('id') + '" was dropped onto me!'+
+                event.target.id);          
+        console.log("Div Arrastre: " + divMovimiento.id);
+        $("#img22").swap({ 
+            target: draggable.attr('id'), // Mandatory. The ID of the element we want to swap with  
+            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
+            speed: 1000, // Optional. The time taken in milliseconds for the animation to occur  
+            callback: function() { // Optional. Callback function once the swap is complete                   
+            }  
+        }); 
+//        $("#"+ draggable.attr('id')).swap({ 
+//            target: divMovimiento.id, // Mandatory. The ID of the element we want to swap with  
+//            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
+//            speed: 100, // Optional. The time taken in milliseconds for the animation to occur  
+//            callback: function() { // Optional. Callback function once the swap is complete                   
+//            }  
+//        }); 
+        //event.preventDefault();
+        //console.log("drag over " + event.target);
     }
 
     function seleccionaryEliminar() {
