@@ -153,6 +153,21 @@ $(function () {
         var df = dst[1];
         var dc = dst[2];
 
+        // verificando que el cambio de divs sea el de al lado.
+        var ddx = Math.abs(parseInt(sf) - parseInt(df));
+        var ddy = Math.abs(parseInt(sc) - parseInt(dc));
+
+        if (ddx > 1 || ddy > 1)
+        {
+            console.log("Distancia invalida > 1");
+            return;
+        }
+        
+        if (sf !== df && sc !== dc){
+            console.log("Movimiento invalido...");
+            return;
+        }
+        
         console.log("swap " + sf + "," + sc + " to " + df + "," + dc);
 
         var tmp = matriz[sf][sc].fuente;
