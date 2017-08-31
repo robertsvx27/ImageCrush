@@ -12,6 +12,7 @@ var arrayImagenes = ['image/1.png', 'image/2.png', 'image/3.png', 'image/4.png']
 var cantidadImagenes = arrayImagenes.length;
 var matriz = [];
 var divMovimiento = null;
+var divArrastre = null;
 
 $(function () {
 
@@ -23,12 +24,12 @@ $(function () {
             fuente: src,
             enCombo: false,
             o: obj
-        }
+        };
     }
 
     var cambiarTitulo = function () {
         setInterval(function () {
-            if (indColor == colores.length)
+            if (indColor === colores.length)
                 indColor = 0;
             $('.main-titulo').css('color', colores[indColor]);
             indColor++;
@@ -39,7 +40,7 @@ $(function () {
 
     function iniciar() {
         $('.btn-reinicio').text('Reiniciar');
-        if (indEstado == 0) {
+        if (indEstado === 0) {
             indEstado = 1;
             iniciarTiempo();
         } else {
@@ -75,7 +76,7 @@ $(function () {
         tiempoRestante -= 1;
         console.log(tiempoRestante);
         actualizarTiempo();
-        if (tiempoRestante == 0) {
+        if (tiempoRestante === 0) {
             return finalizacion();
         }
         tiempo = setTimeout(contadorTiempo, 1000);
@@ -111,7 +112,7 @@ $(function () {
                 var imagenPonemos = Math.floor((Math.random() * cantidadImagenes));
                 matriz[f][c] = new juego(f, c, null, arrayImagenes[imagenPonemos]);
 
-                var celda = $('#img' + f + c).html("<img src='" + matriz[f][c].fuente + "' alt=''/>");
+                var celda = $('#img_' + f + '_' + c).html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
                 celda.draggable(
                         {
                             containment: '.panel-tablero',
@@ -120,12 +121,9 @@ $(function () {
                             opacity: 0.85,
                             snap: '.panel-tablero',
                             stack: '.panel-tablero',
-                            //revert: true,
+                            revert: true,
                             start: handleDragStart,
-                            drag: handleDragStop,
-                            stop: function (event, ui) {
-                                
-                            }
+                            stop: handleDragStop
                         });
                 celda.droppable(
                         {
@@ -137,36 +135,63 @@ $(function () {
     }
 
     function handleDragStop(event, ui) {
-        console.log("Moving jewel: " + event.target.id);
-        console.log("Posicion: " + event.target);
+       
+        console.log('DIV Final: "' + divArrastre);
+        console.log("DIV Inicial: " + divMovimiento);
         //var offsetXPos = parseInt(ui.offset.left);
         //var offsetYPos = parseInt(ui.offset.top);
         //console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");        
         //event.originalEvent.dataTransfer.setData("text/plain", event.target.id);
+        
+        var src = divMovimiento.split("_");
+
+        var sf = src[1];
+        var sc = src[2];
+
+        var dst = divArrastre.split("_");
+
+        var df = dst[1];
+        var dc = dst[2];
+
+        console.log("swap " + sf + "," + sc + " to " + df + "," + dc);
+
+        var tmp = matriz[sf][sc].fuente;
+        matriz[sf][sc].fuente = matriz[df][dc].fuente;
+        matriz[sf][sc].o.html("<img src='" + matriz[sf][sc].fuente + "' alt='" + sf + "," + sc + "'/>");
+        matriz[df][dc].fuente = tmp;
+        matriz[df][dc].o.html("<img src='" + tmp + "' alt='" + df + "," + dc + "'/>");
+        
+        divMovimiento = null;
+        divArrastre = null;
     }
-    
-    function handleDragStart(event, ui) {       
-        console.log("Moving jewel: " + event.target.id);
-        console.log("Moving jewel: " + event.target.css);
-        console.log("Posicion: " + event.target);
-        var offsetXPos = parseInt(ui.offset.left);
-        var offsetYPos = parseInt(ui.offset.top);
-        console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");                
-        divMovimiento = event.target;
+
+    function handleDragStart(event, ui) {
+//        console.log("Moving jewel: " + event.target.id);
+//        console.log("Moving jewel: " + event.target.css);
+//        console.log("Posicion: " + event.target);
+//        var offsetXPos = parseInt(ui.offset.left);
+//        var offsetYPos = parseInt(ui.offset.top);
+//        console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");
+        divMovimiento = event.target.id;
+        console.log("Div Inicio Start :" + divMovimiento);
     }
 
     function handleDropEvent(event, ui) {
-        var draggable = ui.draggable; // a donde llega el div a mover
-        console.log('Posicion movida "' + draggable.attr('id') + '" was dropped onto me!'+
-                event.target.id);          
-        console.log("Div Arrastre: " + divMovimiento.id);
-        $("#img22").swap({ 
-            target: draggable.attr('id'), // Mandatory. The ID of the element we want to swap with  
-            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
-            speed: 1000, // Optional. The time taken in milliseconds for the animation to occur  
-            callback: function() { // Optional. Callback function once the swap is complete                   
-            }  
-        }); 
+        //var draggable = ui.draggable; // a donde llega el div a mover
+        divArrastre = event.target.id;
+        console.log('DIV Final Drop: "' + divArrastre + '"!' +
+                divMovimiento.id);
+        console.log("DIV Inicio Drop: " + divMovimiento);
+        
+      
+//        
+//        $("#"+ draggable.attr('id')).swap({ 
+//            target: draggable.attr('id'), // Mandatory. The ID of the element we want to swap with  
+//            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
+//            speed: 1000, // Optional. The time taken in milliseconds for the animation to occur  
+//            callback: function() { // Optional. Callback function once the swap is complete                   
+//            }  
+//        }); 
 //        $("#"+ draggable.attr('id')).swap({ 
 //            target: divMovimiento.id, // Mandatory. The ID of the element we want to swap with  
 //            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
@@ -176,6 +201,27 @@ $(function () {
 //        }); 
         //event.preventDefault();
         //console.log("drag over " + event.target);
+
+//        console.log("ondrop " + event);
+//
+//        var src = divMovimiento.split("_");
+//
+//        var sf = src[1];
+//        var sc = src[2];
+//
+//        var dst = event.target.id.split("_");
+//
+//        var df = dst[1];
+//        var dc = dst[2];
+//
+//        console.log("swap " + sf + "," + sc + " to " + df + "," + dc);
+//
+//        var tmp = matriz[sf][sc].fuente;
+//        matriz[sf][sc].fuente = matriz[df][dc].fuente;
+//        matriz[sf][sc].o.attr("html", "<img src='" + matriz[sf][sc].fuente + "' alt='" + sf + "," + sc + "'/>");
+//        matriz[df][dc].src = tmp;
+//        matriz[df][dc].o.attr("html", "<img src='" + matriz[df][dc].fuente + "' alt='" + df + "," + dc + "'/>");
+
     }
 
     function seleccionaryEliminar() {
@@ -187,7 +233,7 @@ $(function () {
 
             for (var c = 0; c < dimension; c++) {
                 // first cell of combo!
-                if (prevCelda == null)
+                if (prevCelda === null)
                 {
                     //console.log("FirstCell: " + r + "," + c);
                     prevCelda = matriz[f][c].src;
@@ -197,7 +243,7 @@ $(function () {
                     continue;
                 } else {
                     var curCelda = matriz[f][c].fuente;
-                    if (!(prevCelda == curCelda)) {
+                    if (!(prevCelda === curCelda)) {
                         prevCelda = matriz[f][c].fuente;
                         figInicio = c;
                         figFin = null;
@@ -205,7 +251,7 @@ $(function () {
                         continue;
                     } else {
                         figLongitud += 1;
-                        if (figLongitud == 3)
+                        if (figLongitud === 3)
                         {
                             figValidas += 1;
                             figFin = c;
