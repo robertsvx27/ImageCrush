@@ -9,6 +9,7 @@ var puntos = 0,
 colores = ['white', 'yellow'];
 dimension = 7;
 var arrayImagenes = ['image/1.png', 'image/2.png', 'image/3.png', 'image/4.png'];
+var puntuacion = [0, 0, 0, 100, 150, 200, 250];
 var cantidadImagenes = arrayImagenes.length;
 var matriz = [];
 var divMovimiento = null;
@@ -34,9 +35,9 @@ $(function () {
             $('.main-titulo').css('color', colores[indColor]);
             indColor++;
         }, 1000);
-    }
+    };
 
-    $(".btn-reinicio").click(iniciar)
+    $(".btn-reinicio").click(iniciar);
 
     function iniciar() {
         $('.btn-reinicio').text('Reiniciar');
@@ -54,6 +55,8 @@ $(function () {
         movimientos = 0;
         tiempoRestante = tiempoJuego;
         actualizarTiempo();
+        actualizarMovimientos();
+        actualizarPuntos();
         clearTimeout(tiempo);
         $('.panel-tablero').slideToggle("slow", function () {
             iniciarTiempo();
@@ -135,14 +138,10 @@ $(function () {
     }
 
     function handleDragStop(event, ui) {
-       
+
         console.log('DIV Final: "' + divArrastre);
         console.log("DIV Inicial: " + divMovimiento);
-        //var offsetXPos = parseInt(ui.offset.left);
-        //var offsetYPos = parseInt(ui.offset.top);
-        //console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");        
-        //event.originalEvent.dataTransfer.setData("text/plain", event.target.id);
-        
+
         var src = divMovimiento.split("_");
 
         var sf = src[1];
@@ -162,12 +161,12 @@ $(function () {
             console.log("Distancia invalida > 1");
             return;
         }
-        
-        if (sf !== df && sc !== dc){
+
+        if (sf !== df && sc !== dc) {
             console.log("Movimiento invalido...");
             return;
         }
-        
+
         console.log("swap " + sf + "," + sc + " to " + df + "," + dc);
 
         var tmp = matriz[sf][sc].fuente;
@@ -175,18 +174,15 @@ $(function () {
         matriz[sf][sc].o.html("<img src='" + matriz[sf][sc].fuente + "' alt='" + sf + "," + sc + "'/>");
         matriz[df][dc].fuente = tmp;
         matriz[df][dc].o.html("<img src='" + tmp + "' alt='" + df + "," + dc + "'/>");
-        
+
+        movimientos += 1;
         divMovimiento = null;
         divArrastre = null;
+        actualizarMovimientos();
+        seleccionaryEliminar();
     }
 
     function handleDragStart(event, ui) {
-//        console.log("Moving jewel: " + event.target.id);
-//        console.log("Moving jewel: " + event.target.css);
-//        console.log("Posicion: " + event.target);
-//        var offsetXPos = parseInt(ui.offset.left);
-//        var offsetYPos = parseInt(ui.offset.top);
-//        console.log("Drag drag!\nOffset: (" + offsetXPos + ", " + offsetYPos + ")\n");
         divMovimiento = event.target.id;
         console.log("Div Inicio Start :" + divMovimiento);
     }
@@ -194,52 +190,15 @@ $(function () {
     function handleDropEvent(event, ui) {
         //var draggable = ui.draggable; // a donde llega el div a mover
         divArrastre = event.target.id;
-        console.log('DIV Final Drop: "' + divArrastre + '"!' +
-                divMovimiento.id);
+        console.log('DIV Final Drop: "' + divArrastre + '"!');
         console.log("DIV Inicio Drop: " + divMovimiento);
-        
-      
-//        
-//        $("#"+ draggable.attr('id')).swap({ 
-//            target: draggable.attr('id'), // Mandatory. The ID of the element we want to swap with  
-//            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
-//            speed: 1000, // Optional. The time taken in milliseconds for the animation to occur  
-//            callback: function() { // Optional. Callback function once the swap is complete                   
-//            }  
-//        }); 
-//        $("#"+ draggable.attr('id')).swap({ 
-//            target: divMovimiento.id, // Mandatory. The ID of the element we want to swap with  
-//            opacity: "0.5", // Optional. If set will give the swapping elements a translucent effect while in motion  
-//            speed: 100, // Optional. The time taken in milliseconds for the animation to occur  
-//            callback: function() { // Optional. Callback function once the swap is complete                   
-//            }  
-//        }); 
-        //event.preventDefault();
-        //console.log("drag over " + event.target);
-
-//        console.log("ondrop " + event);
-//
-//        var src = divMovimiento.split("_");
-//
-//        var sf = src[1];
-//        var sc = src[2];
-//
-//        var dst = event.target.id.split("_");
-//
-//        var df = dst[1];
-//        var dc = dst[2];
-//
-//        console.log("swap " + sf + "," + sc + " to " + df + "," + dc);
-//
-//        var tmp = matriz[sf][sc].fuente;
-//        matriz[sf][sc].fuente = matriz[df][dc].fuente;
-//        matriz[sf][sc].o.attr("html", "<img src='" + matriz[sf][sc].fuente + "' alt='" + sf + "," + sc + "'/>");
-//        matriz[df][dc].src = tmp;
-//        matriz[df][dc].o.attr("html", "<img src='" + matriz[df][dc].fuente + "' alt='" + df + "," + dc + "'/>");
 
     }
 
     function seleccionaryEliminar() {
+
+        // Combo Horizontal
+
         for (var f = 0; f < dimension; f++) {
             var prevCelda = null;
             var figLongitud = 0;
@@ -247,11 +206,12 @@ $(function () {
             var figFin = null;
 
             for (var c = 0; c < dimension; c++) {
-                // first cell of combo!
+
+                // Primer celda para el combo
                 if (prevCelda === null)
                 {
                     //console.log("FirstCell: " + r + "," + c);
-                    prevCelda = matriz[f][c].src;
+                    prevCelda = matriz[f][c].fuente;
                     figInicio = c;
                     figLongitud = 1;
                     figFin = null;
@@ -264,21 +224,26 @@ $(function () {
                         figFin = null;
                         figLongitud = 1;
                         continue;
-                    } else {
+                    } else if(c<dimension) 
+                    {
                         figLongitud += 1;
-                        if (figLongitud === 3)
+                        prevCelda = matriz[f][c].fuente;                        
+                        figFin = null;                       
+                        continue;
+                    }
+                    else{
+                         figLongitud += 1;
+                        if (figLongitud >= 3)
                         {
                             figValidas += 1;
                             figFin = c;
-                            console.log("Combo from " + figInicio + " to " + figFin + "!");
+                            console.log("Combo Horizontal de " + figInicio + " a " + figFin + "!");
                             for (var ci = figInicio; ci <= figFin; ci++)
                             {
-
-                                matriz[f][ci].esCombo = true;
+                                matriz[f][ci].enCombo = true;
                                 matriz[f][ci].fuente = null;
-                                //grid[r][ci].o.attr("src","");
-
                             }
+                            puntos += puntuacion[figLongitud];
                             prevCelda = null;
                             figInicio = null;
                             figFin = null;
@@ -290,7 +255,120 @@ $(function () {
                 }
             }
         }
+
+        // Combo Vertical
+        for (var c = 0; c < dimension; c++)
+        {
+
+
+            var prevCelda = null;
+            var figLongitud = 0;
+            var figInicio = null;
+            var figFin = null;
+
+            for (var f = 0; f < dimension; f++)
+            {
+
+                // bypass locked and jewels that partecipate to combo. 
+                //The next cell will become first cell of combo.   
+                if (matriz[f][c].enCombo)
+                {
+                    figInicio = null;
+                    figFin = null;
+                    prevCelda = null;
+                    figLongitud = 1;
+                    continue;
+                }
+
+                // first cell of combo!
+                if (prevCelda === null)
+                {
+                    //console.log("FirstCell: " + r + "," + c);
+                    prevCelda = matriz[f][c].fuente;
+                    figInicio = f;
+                    figLongitud = 1;
+                    figFin = null;
+                    continue;
+                } else
+                {
+                    //second or more cell of combo.
+                    var curCell = matriz[f][c].fuente;
+                    // if current cell is not equals to prev cell then current cell become new first cell!
+                    if (!(prevCelda === curCell))
+                    {
+                        //console.log("New FirstCell: " + r + "," + c);
+                        prevCelda = matriz[f][c].fuente;
+                        figInicio = f;
+                        figFin = null;
+                        figLongitud = 1;
+                        continue;
+                    } else if (f < dimension){
+                        figLongitud += 1;
+                    }else
+                    {
+                        // if current cell is equal to prevcell than combo lenght is increased
+                        // Due to combo, current combo will be destroyed at the end of this procedure.
+                        // Then, the next cell will become new first cell
+                        figLongitud += 1;
+                        if (figLongitud >= 3)
+                        {
+                            figValidas += 1;
+                            figFin = f;
+                            console.log("Combo vertical de " + figInicio + " a " + figFin + "!");
+                            for (var ci = figInicio; ci <= figFin; ci++)
+                            {
+                                matriz[ci][c].enCombo = true;
+                                matriz[ci][c].fuente = null;
+                            }
+                            puntos += puntuacion[figLongitud];
+                            prevCelda = null;
+                            figInicio = null;
+                            figFin = null;
+                            figLongitud = 1;
+
+                            continue;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        var esCombo = false;
+        for (var f = 0; f < dimension; f++) {
+            for (var c = 0; c < dimension; c++)
+                if (matriz[f][c].enCombo)
+                {
+                    console.log("There are a combo");
+                    esCombo = true;
+                }
+        }
+
+        if (esCombo)
+            eliminarImagenes();
+        else
+            console.log("NO COMBO");
     }
+
+    function eliminarImagenes()
+    {
+        for (var f = 0; f < dimension; f++)
+            for (var c = 0; c < dimension; c++)
+                if (matriz[f][c].enCombo)  // this is an empty cell
+                {
+                    matriz[f][c].o.animate({
+                        opacity: 0
+                    }, 500);
+                    actualizarPuntos();
+                }
+
+        $(":animated").promise().done(function () {
+
+            // _executeDestroyMemory();
+
+        });
+    }
+
 
     var temporizador = function () {
         var $timer,
@@ -298,7 +376,7 @@ $(function () {
         incrementador = 70,
                 actualizarTiempo = function () {
                     $timer.html(formatTime(tiempo));
-                    if (tiempo == 0) {
+                    if (tiempo === 0) {
                         temporizador.Timer.stop();
                         return;
                     }
@@ -317,11 +395,11 @@ $(function () {
                     temporizador.Timer = $.timer(actualizarTiempo, incrementador, true);
                 };
         this.restaurarTiempo = function () {
-            temporizador.Timer = $.timer()
+            temporizador.Timer = $.timer();
         };
         $(init);
 
-    }
+    };
 
 
 
