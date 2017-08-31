@@ -28,6 +28,11 @@ $(function () {
         };
     }
 
+    function imagenRandom() {
+        var imagenPonemos = Math.floor((Math.random() * cantidadImagenes));
+        return arrayImagenes[imagenPonemos];
+    }
+
     var cambiarTitulo = function () {
         setInterval(function () {
             if (indColor === colores.length)
@@ -112,8 +117,8 @@ $(function () {
         for (var f = 0; f < dimension; f++) {
             matriz[f] = [];
             for (var c = 0; c < dimension; c++) {
-                var imagenPonemos = Math.floor((Math.random() * cantidadImagenes));
-                matriz[f][c] = new juego(f, c, null, arrayImagenes[imagenPonemos]);
+
+                matriz[f][c] = new juego(f, c, null, imagenRandom());
 
                 var celda = $('#img_' + f + '_' + c).html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
                 celda.draggable(
@@ -219,24 +224,10 @@ $(function () {
                 } else {
                     var curCelda = matriz[f][c].fuente;
                     if (!(prevCelda === curCelda)) {
-                        prevCelda = matriz[f][c].fuente;
-                        figInicio = c;
-                        figFin = null;
-                        figLongitud = 1;
-                        continue;
-                    } else if(c<dimension) 
-                    {
-                        figLongitud += 1;
-                        prevCelda = matriz[f][c].fuente;                        
-                        figFin = null;                       
-                        continue;
-                    }
-                    else{
-                         figLongitud += 1;
                         if (figLongitud >= 3)
                         {
                             figValidas += 1;
-                            figFin = c;
+                            figFin = c - 1;
                             console.log("Combo Horizontal de " + figInicio + " a " + figFin + "!");
                             for (var ci = figInicio; ci <= figFin; ci++)
                             {
@@ -244,13 +235,37 @@ $(function () {
                                 matriz[f][ci].fuente = null;
                             }
                             puntos += puntuacion[figLongitud];
-                            prevCelda = null;
-                            figInicio = null;
+                        }
+                        prevCelda = matriz[f][c].fuente;
+                        figInicio = c;
+                        figFin = null;
+                        figLongitud = 1;
+                        continue;
+                    } else {
+                        figLongitud += 1;
+                        if (c === (dimension - 1)) {
+                            if (figLongitud >= 3)
+                            {
+                                figValidas += 1;
+                                figFin = c;
+                                console.log("Combo Horizontal de " + figInicio + " a " + figFin + "!");
+                                for (var ci = figInicio; ci <= figFin; ci++)
+                                {
+                                    matriz[f][ci].enCombo = true;
+                                    matriz[f][ci].fuente = null;
+                                }
+                                puntos += puntuacion[figLongitud];
+                                prevCelda = null;
+                                figInicio = null;
+                                figFin = null;
+                                figLongitud = 1;
+                                continue;
+                            }
+                        } else {
+                            prevCelda = matriz[f][c].fuente;
                             figFin = null;
-                            figLongitud = 1;
                             continue;
                         }
-
                     }
                 }
             }
@@ -259,8 +274,6 @@ $(function () {
         // Combo Vertical
         for (var c = 0; c < dimension; c++)
         {
-
-
             var prevCelda = null;
             var figLongitud = 0;
             var figInicio = null;
@@ -268,22 +281,28 @@ $(function () {
 
             for (var f = 0; f < dimension; f++)
             {
-
-                // bypass locked and jewels that partecipate to combo. 
-                //The next cell will become first cell of combo.   
                 if (matriz[f][c].enCombo)
                 {
+//                    if (figLongitud >= 3)
+//                    {
+//                        figValidas += 1;
+//                        figFin = f - 1;
+//                        console.log("Combo vertical de " + figInicio + " a " + figFin + "!");
+//                        for (var ci = figInicio; ci <= figFin; ci++)
+//                        {
+//                            matriz[ci][c].enCombo = true;
+//                            matriz[ci][c].fuente = null;
+//                        }
+//                        puntos += puntuacion[figLongitud];
+//                    }
                     figInicio = null;
                     figFin = null;
                     prevCelda = null;
                     figLongitud = 1;
                     continue;
                 }
-
-                // first cell of combo!
                 if (prevCelda === null)
                 {
-                    //console.log("FirstCell: " + r + "," + c);
                     prevCelda = matriz[f][c].fuente;
                     figInicio = f;
                     figLongitud = 1;
@@ -291,29 +310,13 @@ $(function () {
                     continue;
                 } else
                 {
-                    //second or more cell of combo.
                     var curCell = matriz[f][c].fuente;
-                    // if current cell is not equals to prev cell then current cell become new first cell!
                     if (!(prevCelda === curCell))
                     {
-                        //console.log("New FirstCell: " + r + "," + c);
-                        prevCelda = matriz[f][c].fuente;
-                        figInicio = f;
-                        figFin = null;
-                        figLongitud = 1;
-                        continue;
-                    } else if (f < dimension){
-                        figLongitud += 1;
-                    }else
-                    {
-                        // if current cell is equal to prevcell than combo lenght is increased
-                        // Due to combo, current combo will be destroyed at the end of this procedure.
-                        // Then, the next cell will become new first cell
-                        figLongitud += 1;
                         if (figLongitud >= 3)
                         {
                             figValidas += 1;
-                            figFin = f;
+                            figFin = f - 1;
                             console.log("Combo vertical de " + figInicio + " a " + figFin + "!");
                             for (var ci = figInicio; ci <= figFin; ci++)
                             {
@@ -321,11 +324,36 @@ $(function () {
                                 matriz[ci][c].fuente = null;
                             }
                             puntos += puntuacion[figLongitud];
-                            prevCelda = null;
-                            figInicio = null;
+                        }
+                        prevCelda = matriz[f][c].fuente;
+                        figInicio = f;
+                        figFin = null;
+                        figLongitud = 1;
+                        continue;
+                    } else
+                    {
+                        figLongitud += 1;
+                        if (f === (dimension - 1)) {
+                            if (figLongitud >= 3)
+                            {
+                                figValidas += 1;
+                                figFin = f;
+                                console.log("Combo vertical de " + figInicio + " a " + figFin + "!");
+                                for (var ci = figInicio; ci <= figFin; ci++)
+                                {
+                                    matriz[ci][c].enCombo = true;
+                                    matriz[ci][c].fuente = null;
+                                }
+                                puntos += puntuacion[figLongitud];
+                                prevCelda = null;
+                                figInicio = null;
+                                figFin = null;
+                                figLongitud = 1;
+                                continue;
+                            }
+                        } else {
+                            prevCelda = matriz[f][c].fuente;
                             figFin = null;
-                            figLongitud = 1;
-
                             continue;
                         }
                     }
@@ -339,7 +367,7 @@ $(function () {
             for (var c = 0; c < dimension; c++)
                 if (matriz[f][c].enCombo)
                 {
-                    console.log("There are a combo");
+                    console.log("Hay combos para eliminar.");
                     esCombo = true;
                 }
         }
@@ -363,12 +391,108 @@ $(function () {
                 }
 
         $(":animated").promise().done(function () {
-
-            // _executeDestroyMemory();
-
+            eliminarenMemoria();
         });
     }
 
+    function eliminarenMemoria() {
+        // move empty cells to top 
+        for (var f = 0; f < dimension; f++)
+        {
+            for (var c = 0; c < dimension; c++)
+            {
+
+                if (matriz[f][c].enCombo)  // this is an empty cell
+                {
+                    matriz[f][c].o.html("");
+                    //matriz[f][c].o.attr("src", "");
+
+                    // disable cell from combo. 
+                    //(The cell at the end of this routine will be on the top)
+
+                    matriz[f][c].enCombo = false;
+
+                    for (var sr = f; sr >= 0; sr--)
+                    {
+                        if (sr === 0)
+                            break; // cannot shift. this is the first rows
+//                        if (matriz[sr - 1][c].locked)
+//                            break; // cannot shift. my top is locked
+
+                        // shift cell
+                        var tmp = matriz[sr][c].fuente;
+                        matriz[sr][c].fuente = matriz[sr - 1][c].fuente;
+                        matriz[sr - 1][c].fuente = tmp;
+                    }
+
+
+                }
+
+            }
+
+        }
+
+        console.log("Fin de movimiento");
+
+        //redrawing the grid
+        // and setup respaw			 					
+
+        //Reset all cell
+        for (var f = 0; f < dimension; f++)
+        {
+            for (var c = 0; c < dimension; c++)
+            {
+                matriz[f][c].o.html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
+                matriz[f][c].o.css("opacity", "1");
+                matriz[f][c].enCombo = false;
+                if (matriz[f][c].fuente === null)
+                    matriz[f][c].respawn = true;
+                // if respawn is needed
+                if (matriz[f][c].respawn === true)
+                {
+
+                    matriz[f][c].o.off("handleDragStart");
+                    matriz[f][c].o.off("handleDropEvent");
+                    matriz[f][c].o.off("handleDragStop");
+                    
+
+                    matriz[f][c].respawn = false; // respawned!
+                    console.log("Respawning " + f + "," + c);
+                    matriz[f][c].fuente = imagenRandom();
+                    
+                    matriz[f][c].o.html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
+                    matriz[f][c].o.css("opacity", "1");
+                    //matriz[f][c].o.attr("ondragstart", "_ondragstart(event)");
+                    //matriz[f][c].o.attr("ondrop", "_onDrop(event)");
+                    //matriz[f][c].o.attr("ondragover", "_onDragOverEnabled(event)");
+
+                    matriz[f][c].o.draggable(
+                            {
+                                containment: '.panel-tablero',
+                                cursor: 'move',
+                                zIndex: 100,
+                                opacity: 0.85,
+                                snap: '.panel-tablero',
+                                stack: '.panel-tablero',
+                                revert: true,
+                                start: handleDragStart,
+                                stop: handleDragStop
+                            });
+                    matriz[f][c].o.droppable(
+                            {
+                                drop: handleDropEvent
+                            });
+                }
+            }
+        }
+
+
+
+        console.log("Combo reseteados y recreados.");
+
+        // check for other combos
+        seleccionaryEliminar();
+    }
 
     var temporizador = function () {
         var $timer,
