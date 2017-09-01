@@ -1,6 +1,11 @@
+//
+//
+//
+//
+
 var puntos = 0,
         movimientos = 0,
-        tiempoJuego = 5, // segundos
+        tiempoJuego = 120, // segundos
         tiempoRestante,
         tiempo,
         indColor = 0,
@@ -9,7 +14,7 @@ var puntos = 0,
 colores = ['white', 'yellow'];
 dimension = 7;
 var arrayImagenes = ['image/1.png', 'image/2.png', 'image/3.png', 'image/4.png'];
-var puntuacion = [0, 0, 0, 100, 150, 200, 250];
+var puntuacion = [10, 50, 75, 100, 150, 200, 250,300,325,350,375,400,425,450];
 var cantidadImagenes = arrayImagenes.length;
 var matriz = [];
 var divMovimiento = null;
@@ -49,13 +54,15 @@ $(function () {
         if (indEstado === 0) {
             indEstado = 1;
             iniciarTiempo();
+            activarMovimientos();
+            seleccionaryEliminar();
         } else {
             reiniciar();
         }
     }
 
     function reiniciar() {
-
+        figValidas = 0;
         puntos = 0;
         movimientos = 0;
         tiempoRestante = tiempoJuego;
@@ -63,16 +70,23 @@ $(function () {
         actualizarMovimientos();
         actualizarPuntos();
         clearTimeout(tiempo);
-        $('.panel-tablero').slideToggle("slow", function () {
+        var divTiempo = $('.time').css("display"); 
+        if (divTiempo ==='none'){
+            $('.panel-tablero').slideToggle("slow", function () {
+                iniciarTiempo();
+            });
+            $('.time').show();
+            $('.finalizacion').hide();
+            $('.panel-score').css({'width': '25%'});
+            $('.panel-score').resize({
+                animate: true
+            });
+        }else{
             iniciarTiempo();
-        });
-        $('.time').show();
-        $('.finalizacion').hide();
-        $('.panel-score').css({'width': '25%'});
-        $('.panel-score').resize({
-            animate: true
-        });
+        }        
         cargarTablero();
+        seleccionaryEliminar();
+        actualizarPuntos();
     }
 
     function iniciarTiempo() {
@@ -121,7 +135,32 @@ $(function () {
                 matriz[f][c] = new juego(f, c, null, imagenRandom());
 
                 var celda = $('#img_' + f + '_' + c).html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
-                celda.draggable(
+//                celda.draggable(
+//                        {
+//                            containment: '.panel-tablero',
+//                            cursor: 'move',
+//                            zIndex: 100,
+//                            opacity: 0.85,
+//                            snap: '.panel-tablero',
+//                            stack: '.panel-tablero',
+//                            revert: true,
+//                            start: handleDragStart,
+//                            stop: handleDragStop
+//                        });
+//                celda.droppable(
+//                        {
+//                            drop: handleDropEvent
+//                        });
+                matriz[f][c].o = celda;
+            }
+        }
+    }
+
+    function activarMovimientos(){
+        for (var f = 0; f < dimension; f++) {
+             for (var c = 0; c < dimension; c++) {
+                 var celda = $('#img_' + f + '_' + c);
+                  celda.draggable(
                         {
                             containment: '.panel-tablero',
                             cursor: 'move',
@@ -137,11 +176,10 @@ $(function () {
                         {
                             drop: handleDropEvent
                         });
-                matriz[f][c].o = celda;
-            }
+             }
         }
     }
-
+    
     function handleDragStop(event, ui) {
 
         console.log('DIV Final: "' + divArrastre);
@@ -184,6 +222,8 @@ $(function () {
         divMovimiento = null;
         divArrastre = null;
         actualizarMovimientos();
+        // Reseteamos el contador de combos secuenciales
+        figValidas = 0;
         seleccionaryEliminar();
     }
 
@@ -201,9 +241,7 @@ $(function () {
     }
 
     function seleccionaryEliminar() {
-
-        // Combo Horizontal
-
+        // Combo Horizontal        
         for (var f = 0; f < dimension; f++) {
             var prevCelda = null;
             var figLongitud = 0;
@@ -235,6 +273,7 @@ $(function () {
                                 matriz[f][ci].fuente = null;
                             }
                             puntos += puntuacion[figLongitud];
+                            puntos += puntuacion[figValidas];
                         }
                         prevCelda = matriz[f][c].fuente;
                         figInicio = c;
@@ -255,6 +294,7 @@ $(function () {
                                     matriz[f][ci].fuente = null;
                                 }
                                 puntos += puntuacion[figLongitud];
+                                puntos += puntuacion[figValidas];
                                 prevCelda = null;
                                 figInicio = null;
                                 figFin = null;
@@ -283,18 +323,6 @@ $(function () {
             {
                 if (matriz[f][c].enCombo)
                 {
-//                    if (figLongitud >= 3)
-//                    {
-//                        figValidas += 1;
-//                        figFin = f - 1;
-//                        console.log("Combo vertical de " + figInicio + " a " + figFin + "!");
-//                        for (var ci = figInicio; ci <= figFin; ci++)
-//                        {
-//                            matriz[ci][c].enCombo = true;
-//                            matriz[ci][c].fuente = null;
-//                        }
-//                        puntos += puntuacion[figLongitud];
-//                    }
                     figInicio = null;
                     figFin = null;
                     prevCelda = null;
@@ -324,6 +352,7 @@ $(function () {
                                 matriz[ci][c].fuente = null;
                             }
                             puntos += puntuacion[figLongitud];
+                            puntos += puntuacion[figValidas];
                         }
                         prevCelda = matriz[f][c].fuente;
                         figInicio = f;
@@ -345,6 +374,7 @@ $(function () {
                                     matriz[ci][c].fuente = null;
                                 }
                                 puntos += puntuacion[figLongitud];
+                                puntos += puntuacion[figValidas];
                                 prevCelda = null;
                                 figInicio = null;
                                 figFin = null;
@@ -367,64 +397,64 @@ $(function () {
             for (var c = 0; c < dimension; c++)
                 if (matriz[f][c].enCombo)
                 {
-                    console.log("Hay combos para eliminar.");
+                    console.log("Combo para eliminar: " + f + ',' + c);
                     esCombo = true;
                 }
         }
 
-        if (esCombo)
-            eliminarImagenes();
-        else
-            console.log("NO COMBO");
+        if (esCombo){          
+            eliminarImagenes();            
+        }
+        else {
+            console.log("NO COMBO");                      
+        }      
+        mostrarImagenes();
     }
-
+    
     function eliminarImagenes()
     {
-        for (var f = 0; f < dimension; f++)
-            for (var c = 0; c < dimension; c++)
-                if (matriz[f][c].enCombo)  // this is an empty cell
+        for (var f = 0; f < dimension; f++){
+            for (var c = 0; c < dimension; c++){
+                if (matriz[f][c].enCombo)  // Celda vacia
                 {
                     matriz[f][c].o.animate({
                         opacity: 0
-                    }, 500);
-                    actualizarPuntos();
+                    }, 700);
                 }
-
+            }                
+        }
+        actualizarPuntos();
+            
         $(":animated").promise().done(function () {
-            eliminarenMemoria();
-        });
+            eliminarenMemoria();  
+         });
+       
+        console.log("finaliza aqui en eliminarImagenes");
     }
 
     function eliminarenMemoria() {
-        // move empty cells to top 
+        // mueve las celdas vacias hacia arriba.
         for (var f = 0; f < dimension; f++)
         {
             for (var c = 0; c < dimension; c++)
             {
 
-                if (matriz[f][c].enCombo)  // this is an empty cell
+                if (matriz[f][c].enCombo)  // Pregunta si la celda esta vacia
                 {
                     matriz[f][c].o.html("");
-                    //matriz[f][c].o.attr("src", "");
-
-                    // disable cell from combo. 
-                    //(The cell at the end of this routine will be on the top)
 
                     matriz[f][c].enCombo = false;
 
                     for (var sr = f; sr >= 0; sr--)
                     {
                         if (sr === 0)
-                            break; // cannot shift. this is the first rows
-//                        if (matriz[sr - 1][c].locked)
-//                            break; // cannot shift. my top is locked
+                            break; // no cambia porque es la primer fila
 
-                        // shift cell
+                        // cambio de las celdas
                         var tmp = matriz[sr][c].fuente;
                         matriz[sr][c].fuente = matriz[sr - 1][c].fuente;
                         matriz[sr - 1][c].fuente = tmp;
                     }
-
 
                 }
 
@@ -434,37 +464,34 @@ $(function () {
 
         console.log("Fin de movimiento");
 
-        //redrawing the grid
-        // and setup respaw			 					
+        //redibujando la grilla
+        //y configurando el respawn		 					
 
-        //Reset all cell
+        //Reseteando las celdas
         for (var f = 0; f < dimension; f++)
         {
             for (var c = 0; c < dimension; c++)
             {
                 matriz[f][c].o.html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
-                matriz[f][c].o.css("opacity", "1");
+                matriz[f][c].o.css("opacity", 1);
                 matriz[f][c].enCombo = false;
                 if (matriz[f][c].fuente === null)
                     matriz[f][c].respawn = true;
-                // if respawn is needed
+
                 if (matriz[f][c].respawn === true)
                 {
 
                     matriz[f][c].o.off("handleDragStart");
                     matriz[f][c].o.off("handleDropEvent");
                     matriz[f][c].o.off("handleDragStop");
-                    
+
 
                     matriz[f][c].respawn = false; // respawned!
                     console.log("Respawning " + f + "," + c);
                     matriz[f][c].fuente = imagenRandom();
-                    
+
                     matriz[f][c].o.html("<img src='" + matriz[f][c].fuente + "' alt='" + f + "," + c + "'/>");
-                    matriz[f][c].o.css("opacity", "1");
-                    //matriz[f][c].o.attr("ondragstart", "_ondragstart(event)");
-                    //matriz[f][c].o.attr("ondrop", "_onDrop(event)");
-                    //matriz[f][c].o.attr("ondragover", "_onDragOverEnabled(event)");
+
 
                     matriz[f][c].o.draggable(
                             {
@@ -482,18 +509,31 @@ $(function () {
                             {
                                 drop: handleDropEvent
                             });
+                }else{
+                     matriz[f][c].o.css("opacity", 1);
                 }
+                
             }
         }
 
-
-
-        console.log("Combo reseteados y recreados.");
-
-        // check for other combos
+        console.log("Combo reseteados y recreados.");      
+        // Verifica si existen otros combos
+        mostrarImagenes();
         seleccionaryEliminar();
+        console.log("finaliza aqui en eliminarenMemoria");  
+        mostrarImagenes();
     }
 
+    function mostrarImagenes(){
+          for (var f = 0; f < dimension; f++){
+                for (var c = 0; c < dimension; c++){    
+                    if (matriz[f][c].o.css("opacity")===0)
+                        console.log("Imagen invisible: " + f+','+c);
+                    matriz[f][c].o.css("opacity", 1);                    
+                }                    
+            }         
+    }
+    // Temporizador del Juego
     var temporizador = function () {
         var $timer,
                 tiempo = 1000;
