@@ -572,7 +572,7 @@ $(function () {
         cargarTablero();
     });
 
-// Common functions
+// Funciones comunes.
     function pad(number, length) {
         var str = '' + number;
         while (str.length < length) {
